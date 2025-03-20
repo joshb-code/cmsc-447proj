@@ -4,6 +4,10 @@ const app = express();
 // Middleware to parse JSON
 app.use(express.json());
 
+//import and user routes
+const authRoutes = require("./routes/auth");
+app.use("/api/auth", authRoutes);
+
 // Simple test route
 app.get("/", (req, res) => {
     res.send("Express server is running!");
