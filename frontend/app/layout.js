@@ -1,5 +1,8 @@
 // app/layout.js
+import "../styles/reset.css";
+import "../styles/globals.css";
 import "../styles/Home.module.css";
+import { ItemsProvider } from './context/ItemsContext';
 
 export const metadata = {
   title: "Retriever's Essentials",
@@ -9,7 +12,14 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      </head>
+      <body>
+        <ItemsProvider>
+          {children}
+        </ItemsProvider>
+      </body>
     </html>
   );
 }
