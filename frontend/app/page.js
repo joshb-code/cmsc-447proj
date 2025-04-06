@@ -1,22 +1,68 @@
 // app/page.js
 import Link from "next/link";
-import "./globals.css";
+import styles from "../app/styles/Home.module.css";
 
 export default function Home() {
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen p-8 bg-white text-black">
-      <h1 className="text-4xl font-bold mb-6">Welcome to Retriever's Essentials</h1>
-      <p className="text-lg text-center max-w-xl mb-6">
-        Your campus food pantry – supporting UMBC students with free food essentials.
-      </p>
-      <div className="flex gap-4">
-        <Link href="/available-items" className="bg-yellow-400 text-black px-4 py-2 rounded font-semibold hover:bg-yellow-300">
-          View Available Items
-        </Link>
-        <Link href="/signin" className="border border-black px-4 py-2 rounded hover:bg-black hover:text-white">
-          Sign In
-        </Link>
+    <div className={styles.homeContainer}>
+      <div className={styles.titleBanner}>
+        <Link href="/" className={styles.titleLink}>Retriever&apos;s Essentials</Link>
       </div>
-    </main>
+
+      {/* Hero Section */}
+      <section className={styles.heroSection}>
+        <div className={styles.heroContent}>
+          <h1>Welcome to Retriever&apos;s Essentials</h1>
+          <p>Your campus food pantry - supporting UMBC students with free food essentials</p>
+          <div className={styles.heroButtons}>
+            <Link href="/available-items" className={styles.primaryButton}>View Available Items</Link>
+            <Link href="/signin" className={styles.secondaryButton}>Sign In</Link>
+          </div>
+        </div>
+      </section>
+
+      {/* About Section */}
+      <section className={styles.aboutSection}>
+        <h2>About Retriever&apos;s Essentials</h2>
+        <p>We&apos;re dedicated to ensuring that no UMBC student goes hungry. Our free campus food store provides essential food items to support our student community.</p>
+        
+        <div className={styles.statsContainer}>
+          <div className={styles.statItem}>
+            <h3>100+</h3>
+            <p>Students Served</p>
+          </div>
+          <div className={styles.statItem}>
+            <h3>50+</h3>
+            <p>Items Available</p>
+          </div>
+          <div className={styles.statItem}>
+            <h3>Opens</h3>
+            <p>Every Friday</p>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section className={styles.howItWorksSection}>
+        <h2>How It Works</h2>
+        <div className={styles.stepsContainer}>
+          <div className={styles.step}>
+            <div className={styles.stepNumber}>1</div>
+            <h3>Sign In</h3>
+            <p>Create an account or sign in with your UMBC credentials</p>
+          </div>
+          <div className={styles.step}>
+            <div className={styles.stepNumber}>2</div>
+            <h3>Browse Items</h3>
+            <p>View available food items in our inventory</p>
+          </div>
+          <div className={styles.step}>
+            <div className={styles.stepNumber}>3</div>
+            <h3>Pick Up</h3>
+            <p>Visit our location to pick up your selected items</p>
+          </div>
+        </div>
+      </section>
+    </div>
   );
 }
