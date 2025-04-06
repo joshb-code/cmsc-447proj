@@ -1,6 +1,6 @@
 // app/page.js
 import Link from "next/link";
-import styles from "../app/styles/Home.module.css";
+import styles from "../styles/Home.module.css";
 
 export default function Home() {
   return (
