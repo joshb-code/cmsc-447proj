@@ -1,5 +1,5 @@
 // app/layout.js
-import "../app/styles/Home.module.css";
+import "../styles/Home.module.css";
 
 export const metadata = {
   title: "Retriever's Essentials",
