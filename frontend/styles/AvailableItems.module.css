@@ -1,0 +1,183 @@
+.hideNavbar .navbar {
+    display: none;
+  }
+  
+  .availableItemsContainer.noNavbar {
+    margin-top: 0;
+    min-height: 100vh;
+  }
+  
+  .titleBanner {
+    background-color: #000;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .titleLink {
+    color: #ffcc00;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-decoration: none;
+    font-family: 'Playfair Display', serif;
+  }
+  
+  .titleLink:hover {
+    color: #ffed4a;
+  }
+  
+  .availableItemsContainer {
+    min-height: calc(100vh - 64px);
+    background-color: #f5f5f5;
+    padding-bottom: 2rem;
+  }
+  
+  .loginBanner {
+    background-color: #000;
+    color: white;
+    padding: 0.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .loginBanner p {
+    color: #ffcc00;
+    font-size: 1.5rem;
+    font-weight: bold;
+    font-family: 'Playfair Display', serif;
+    margin: 0;
+  }
+  
+  .loginButton {
+    background-color: #ffcc00;
+    color: #000;
+    padding: 0.4rem 1rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+  }
+  
+  .loginButton:hover {
+    background-color: #ffed4a;
+  }
+  
+  .availableItemsContent {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+  
+  .availableItemsContent h2 {
+    text-align: center;
+    color: #000;
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    font-family: 'Playfair Display', serif;
+  }
+  
+  .itemsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+  
+  .itemCard {
+    background: white;
+    border-radius: 9px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .itemCard:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .itemHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .itemCategory {
+    background-color: #ffcc00;
+    color: #000;
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+  
+  .itemQuantity {
+    color: #666;
+    font-size: 0.9rem;
+  }
+  
+  .itemCard h3 {
+    color: #000;
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .itemDescription {
+    color: #666;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+  
+  .itemFooter {
+    border-top: 1px solid #eee;
+    padding-top: 1rem;
+  }
+  
+  .dietaryInfo {
+    background-color: #f0f0f0;
+    color: #666;
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.9rem;
+  }
+  
+  .loadingMessage {
+    text-align: center;
+    padding: 2rem;
+    font-size: 1.2rem;
+    color: #666;
+  }
+  
+  .errorMessage {
+    text-align: center;
+    padding: 1rem;
+    margin: 2rem auto;
+    max-width: 600px;
+    background-color: #dc3545;
+    color: white;
+    border-radius: 5px;
+    font-size: 1rem;
+  }
+  
+  @media (max-width: 768px) {
+    .loginBanner {
+      flex-direction: column;
+      gap: 1rem;
+      text-align: center;
+      padding: 1rem;
+    }
+  
+    .availableItemsContent {
+      padding: 0 1rem;
+    }
+  
+    .itemsGrid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+  }
+  
