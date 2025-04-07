@@ -2,6 +2,7 @@
 import "../styles/reset.css";
 import "../styles/globals.css";
 import "../styles/Home.module.css";
+import Navbar from './components/Navbar';
 import { ItemsProvider } from "./context/ItemsContext";
 
 export const metadata = {
