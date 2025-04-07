@@ -1,0 +1,139 @@
+.inventoryContainer {
+    padding: 2rem;
+    min-height: calc(100vh - 64px);
+    margin-top: 64px;
+    background-color: #f5f5f5;
+  }
+  
+  .itemsSection {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+  }
+  
+  .itemsSection h2 {
+    color: #000;
+    margin-bottom: 2rem;
+    font-size: 1.8rem;
+    text-align: center;
+  }
+  
+  .itemsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+  
+  .itemCard {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .itemCard:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .itemHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .itemCategory {
+    background-color: #ffcc00;
+    color: #000;
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+  
+  .itemQuantity {
+    color: #666;
+    font-size: 0.9rem;
+  }
+  
+  .itemCard h3 {
+    color: #000;
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .itemDescription {
+    color: #666;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+  
+  .itemFooter {
+    border-top: 1px solid #eee;
+    padding-top: 1rem;
+  }
+  
+  .dietaryInfo {
+    background-color: #f0f0f0;
+    color: #666;
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.9rem;
+  }
+  
+  .errorMessage {
+    color: red;
+    text-align: center;
+    margin-top: 1rem;
+    font-weight: bold;
+  }
+  
+  .loadingMessage {
+    text-align: center;
+    color: #333;
+    font-size: 1.1rem;
+  }
+  
+  /* 🔍 Search + Filter */
+  .controls {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+  
+  .searchInput {
+    padding: 0.6rem 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    min-width: 220px;
+  }
+  
+  .filterSelect {
+    padding: 0.6rem 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    min-width: 180px;
+  }
+  
+  @media (max-width: 768px) {
+    .inventoryContainer {
+      padding: 1rem;
+    }
+  
+    .itemsSection {
+      padding: 0;
+    }
+  
+    .itemsGrid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+  }
+  

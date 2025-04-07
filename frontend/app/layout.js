@@ -3,6 +3,7 @@ import "../styles/reset.css";
 import "../styles/globals.css";
 import "../styles/Home.module.css";
 import { ItemsProvider } from "./context/ItemsContext";
+import Navbar from './components/Navbar';
 
 export const metadata = {
   title: "Retriever's Essentials",
