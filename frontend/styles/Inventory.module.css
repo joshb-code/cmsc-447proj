@@ -16,6 +16,8 @@
     margin-bottom: 2rem;
     font-size: 1.8rem;
     text-align: center;
+    padding-top: 0.5rem;
+    word-wrap: break-word;
   }
   
   .itemsGrid {
@@ -104,6 +106,7 @@
     align-items: center;
     margin-bottom: 2rem;
     flex-wrap: wrap;
+    width: 100%;
   }
   
   .searchInput {
@@ -112,6 +115,8 @@
     border-radius: 5px;
     font-size: 1rem;
     min-width: 220px;
+    width: 100%;
+    max-width: 350px;
   }
   
   .filterSelect {
@@ -120,15 +125,41 @@
     border-radius: 5px;
     font-size: 1rem;
     min-width: 180px;
+    width: 100%;
+    max-width: 200px;
+  }
+  
+  .noItemsMessage {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #666;
+    padding: 2rem;
+    grid-column: 1 / -1;
   }
   
   @media (max-width: 768px) {
     .inventoryContainer {
       padding: 1rem;
+      margin-top: 48px; /* Smaller top margin for mobile */
     }
   
     .itemsSection {
-      padding: 0;
+      padding: 0.5rem;
+    }
+  
+    .itemsSection h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      margin-top: 0.5rem;
+    }
+  
+    .controls {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  
+    .searchInput, .filterSelect {
+      max-width: 100%;
     }
   
     .itemsGrid {
