@@ -156,7 +156,7 @@
   flex: 1;
   min-width: 250px;
   padding: 2rem;
-  background-color: #fdd700;
+  background-color: #ffffff;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
@@ -164,8 +164,8 @@
 .stepNumber {
   width: 40px;
   height: 40px;
-  background-color: #000000;
-  color: #ffffff;
+  background-color: #ffcc00;
+  color: #000000;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -175,11 +175,12 @@
 }
 
 .step h3 {
-  color: #000000;
+  font-size: 1.5rem;
+  color: #000;
   margin-bottom: 1rem;
 }
 
 .step p {
-  color: #000000;
+  color: #666;
+  line-height: 1.5;
 }
-  
