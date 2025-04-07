@@ -38,11 +38,9 @@ export default function Navbar() {
           <Link href="/add-item" className={styles.dropdownItem} onClick={closeDropdown}>
             Add Items
           </Link>
-          {isAuthenticated && (
-            <button onClick={handleSignOut} className={`${styles.dropdownItem} ${styles.signOutBtn}`}>
-              Sign Out
-            </button>
-          )}
+          <button onClick={handleSignOut} className={`${styles.dropdownItem} ${styles.signOutBtn}`}>
+            Sign Out
+          </button>
         </div>
       </div>
     </nav>
