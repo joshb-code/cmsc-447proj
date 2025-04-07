@@ -2,7 +2,7 @@
 import "../styles/reset.css";
 import "../styles/globals.css";
 import "../styles/Home.module.css";
-import { ItemsProvider } from './context/ItemsContext';
+import { ItemsProvider } from "./context/ItemsContext";
 
 export const metadata = {
   title: "Retriever's Essentials",
