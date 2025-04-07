@@ -17,10 +17,7 @@ export default function Inventory() {
     return matchesType && matchesSearch;
   });
 
-  useEffect(() => {
-    document.body.classList.add('hide-navbar');
-    return () => document.body.classList.remove('hide-navbar');
-  }, []);
+
 
   return (
     <div className={styles.inventoryContainer}>
