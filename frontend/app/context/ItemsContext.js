@@ -10,11 +10,20 @@ export const ItemsProvider = ({ children }) => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/items')
-      .then(res => res.json())
-      .then(setItems)
-      .catch(err => setError(err.message))
-      .finally(() => setLoading(false));
+    const fetchItems = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/api/inventory');
+        if (!res.ok) throw new Error('Failed to fetch items');
+        const data = await res.json();
+        setItems(data);
+      } catch (err) {
+        setError(err.message || 'Something went wrong');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchItems();
   }, []);
 
   return (

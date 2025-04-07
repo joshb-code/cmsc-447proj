@@ -10,19 +10,16 @@ export default function AvailableItems() {
 
   useEffect(() => {
     document.body.classList.add(styles.hideNavbar);
-    document.documentElement.style.margin = '0';
-    document.documentElement.style.padding = '0';
     document.body.style.margin = '0';
     document.body.style.padding = '0';
-    
     return () => {
       document.body.classList.remove(styles.hideNavbar);
     };
   }, []);
 
   return (
-    <div className={styles.availableItemsContainer} style={{margin: 0, padding: 0}}>
-      <div className={styles.titleBanner} style={{marginTop: 0}}>
+    <div className={`${styles.availableItemsContainer} no-navbar`}>
+      <div className={styles.titleBanner}>
         <Link href="/" className={styles.titleLink}>Retriever&apos;s Essentials</Link>
       </div>
 
@@ -39,16 +36,18 @@ export default function AvailableItems() {
           <div className={styles.errorMessage}>{error}</div>
         ) : (
           <div className={styles.itemsGrid}>
-            {items.map(item => (
+            {items.map((item) => (
               <div key={item.product_id} className={styles.itemCard}>
                 <div className={styles.itemHeader}>
                   <span className={styles.itemCategory}>{item.type}</span>
-                  <span className={styles.itemQuantity}>Qty: {item.order_quantity}</span>
+                  <span className={styles.itemQuantity}>Qty: {item.order_quantity ?? 'N/A'}</span>
                 </div>
                 <h3>{item.product_name}</h3>
                 <p className={styles.itemDescription}>{item.description}</p>
                 <div className={styles.itemFooter}>
-                  <span className={styles.dietaryInfo}>Weight: {item.weight_amount} | Price: {item.price_per_unit}</span>
+                  <span className={styles.dietaryInfo}>
+                    Weight: {item.weight_amount} | Price: {item.price_per_unit}
+                  </span>
                 </div>
               </div>
             ))}
