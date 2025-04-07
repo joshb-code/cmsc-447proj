@@ -2,20 +2,27 @@
 
 import Link from 'next/link';
 import { useEffect } from 'react';
-import { useItems } from '../../context/ItemsContext';
+import { useItems } from '../context/ItemsContext';
 import styles from '../../styles/AvailableItems.module.css';
 
 export default function AvailableItems() {
   const { items, loading, error } = useItems();
 
   useEffect(() => {
-    document.body.classList.add('hide-navbar');
-    return () => document.body.classList.remove('hide-navbar');
+    document.body.classList.add(styles.hideNavbar);
+    document.documentElement.style.margin = '0';
+    document.documentElement.style.padding = '0';
+    document.body.style.margin = '0';
+    document.body.style.padding = '0';
+    
+    return () => {
+      document.body.classList.remove(styles.hideNavbar);
+    };
   }, []);
 
   return (
-    <div className={`${styles.availableItemsContainer} no-navbar`}>
-      <div className={styles.titleBanner}>
+    <div className={styles.availableItemsContainer} style={{margin: 0, padding: 0}}>
+      <div className={styles.titleBanner} style={{marginTop: 0}}>
         <Link href="/" className={styles.titleLink}>Retriever&apos;s Essentials</Link>
       </div>
 
