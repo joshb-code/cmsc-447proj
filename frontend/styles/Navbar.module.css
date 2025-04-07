@@ -12,6 +12,28 @@
     height: 3.5rem;
   }
   
+  .navbarRight {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .signOutButton {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .signOutButton:hover {
+    background-color: #c82333;
+  }
+  
   .navbarBrand {
     color: #ffcc00;
     font-size: 1.3rem;
@@ -111,6 +133,11 @@
   
     .dropdownMenu {
       min-width: 180px;
+    }
+  
+    .signOutButton {
+      padding: 0.4rem 0.8rem;
+      font-size: 0.8rem;
     }
   }
   

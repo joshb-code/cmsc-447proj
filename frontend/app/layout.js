@@ -2,8 +2,8 @@
 import "../styles/reset.css";
 import "../styles/globals.css";
 import "../styles/Home.module.css";
-import Navbar from './components/Navbar';
-import { ItemsProvider } from "./context/ItemsContext";
+import { ItemsProvider } from './context/ItemsContext';
+import { AuthProvider } from './context/AuthContext';
 
 export const metadata = {
   title: "Retriever's Essentials",
@@ -17,9 +17,11 @@ export default function RootLayout({ children }) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </head>
       <body>
-        <ItemsProvider>
-          {children}
-        </ItemsProvider>
+        <AuthProvider>
+          <ItemsProvider>
+            {children}
+          </ItemsProvider>
+        </AuthProvider>
       </body>
     </html>
   );
