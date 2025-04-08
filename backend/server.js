@@ -14,7 +14,7 @@ app.use(express.json());
 const db = mysql.createConnection({
   host: process.env.DB_HOST || 'localhost',
   user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
+  password: process.env.DB_PASSWORD || '1095',
   database: process.env.DB_NAME || 'inventory',
 });
 
@@ -113,17 +113,18 @@ app.post('/api/inventory', (req, res) => {
     order_quantity,
     description,
     type,
+    vendor_id
   } = req.body;
 
   const query = `
     INSERT INTO inventory_items 
-    (product_name, weight_amount, price_per_unit, order_quantity, description, type)
-    VALUES (?, ?, ?, ?, ?, ?)
+    (product_name, weight_amount, price_per_unit, order_quantity, description, type, vendor_id)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
   `;
 
   db.query(
     query,
-    [product_name, weight_amount, price_per_unit, order_quantity, description, type],
+    [product_name, weight_amount, price_per_unit, order_quantity, description, type, vendor_id],
     (err, result) => {
       if (err) {
         console.error('❌ Error adding item:', err);
@@ -133,6 +134,9 @@ app.post('/api/inventory', (req, res) => {
     }
   );
 });
+
+
+// Routes
 
 // Start server
 app.listen(PORT, () => {

@@ -47,6 +47,7 @@ export default function Inventory() {
               <option value="Snack">Snack</option>
               <option value="Instant">Instant</option>
               <option value="Meal">Meal</option>
+              <option value="Other">Other</option>
               <option value="Hygiene">Hygiene</option>
             </select>
           </div>

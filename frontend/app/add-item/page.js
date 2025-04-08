@@ -11,7 +11,7 @@ export default function AddItem() {
   const [formData, setFormData] = useState({
     item_name: '',
     item_description: '',
-    type: 'Other', // Default type
+    type: 'Other', 
     vendor_id: '',
     quantity: '',
     price: '',
@@ -61,42 +61,48 @@ export default function AddItem() {
     
     if (Object.keys(validationErrors).length === 0) {
       try {
-        // Here you would typically make an API call to save the item
-        // For example:
-        // const response = await fetch('http://localhost:5000/api/inventory', {
-        //   method: 'POST',
-        //   headers: {
-        //     'Content-Type': 'application/json',
-        //   },
-        //   body: JSON.stringify({
-        //     product_name: formData.item_name,
-        //     description: formData.item_description,
-        //     vendor_id: parseInt(formData.vendor_id),
-        //     order_quantity: formData.quantity ? parseInt(formData.quantity) : null,
-        //     price_per_unit: formData.price,
-        //     weight_amount: formData.weight || null,
-        //     type: 'Other' // You might want to add a type field to your form
-        //   }),
-        // });
-        
-        // Simulating successful API call
-        console.log('Form submitted:', formData);
+        const response = await fetch('http://localhost:5000/api/inventory', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            product_name: formData.item_name,
+            description: formData.item_description,
+            vendor_id: parseInt(formData.vendor_id),
+            order_quantity: formData.quantity ? parseInt(formData.quantity) : null,
+            price_per_unit: parseFloat(formData.price),
+            weight_amount: formData.weight ? parseFloat(formData.weight) : null,
+            type: formData.type
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to add item');
+        }
+
+        const data = await response.json();
+        console.log('Item added successfully:', data);
+
+        // Show success message
         setSuccess('Item added successfully!');
+        setError('');
+
+        // Clear the form
         setFormData({
           item_name: '',
           item_description: '',
-          type: 'Grain',
+          type: 'Other',
           vendor_id: '',
           quantity: '',
           price: '',
           weight: ''
         });
-        setError('');
-        
-        // Automatically clear success message after 3 seconds
+
+        // Clear success message after 3 seconds
         setTimeout(() => {
           setSuccess('');
-        }, 1000);
+        }, 3000);
       } catch (err) {
         setError('Failed to add item. Please try again.');
         console.error('Error adding item:', err);
