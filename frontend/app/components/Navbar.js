@@ -32,11 +32,14 @@ export default function Navbar() {
         </button>
 
         <div className={`${styles.dropdownMenu} ${isDropdownOpen ? styles.show : ''}`}>
-          <Link href="/" className={styles.dropdownItem} onClick={closeDropdown}>
+          <Link href="/inventory" className={styles.dropdownItem} onClick={closeDropdown}>
             Home
           </Link>
           <Link href="/add-item" className={styles.dropdownItem} onClick={closeDropdown}>
             Add Items
+          </Link>
+          <Link href="/vendors" className={styles.dropdownItem} onClick={closeDropdown}>
+            Vendors
           </Link>
           <button onClick={handleSignOut} className={`${styles.dropdownItem} ${styles.signOutBtn}`}>
             Sign Out
