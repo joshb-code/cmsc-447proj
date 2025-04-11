@@ -8,7 +8,8 @@ import styles from '../../styles/Signup.module.css';
 export default function Signup() {
   const router = useRouter();
   const [formData, setFormData] = useState({
-    username: '',
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -32,16 +33,18 @@ export default function Signup() {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.username.trim()) newErrors.username = 'Username is required';
+    if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
+    if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
     if (!formData.email.trim()) newErrors.email = 'Email is required';
     else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid';
     if (!formData.password) newErrors.password = 'Password is required';
     else if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters';
     if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
-    if (!formData.role) newErrors.role = 'Please select a role';  // ⬅️ Role validation
+    if (!formData.role) newErrors.role = 'Please select a role';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+  
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -65,18 +68,32 @@ export default function Signup() {
         <div className={styles.signupFormContainer}>
           <h2>Create Account</h2>
           <form onSubmit={handleSubmit} className={styles.signupForm}>
-            <div className={styles.formGroup}>
-              <label htmlFor="username">Username</label>
-              <input
-                type="text"
-                name="username"
-                id="username"
-                value={formData.username}
-                onChange={handleChange}
-                className={errors.username ? styles.error : ''}
-              />
-              {errors.username && <div className={styles.errorMessage}>{errors.username}</div>}
-            </div>
+           <div className={styles.formGroup}>
+          <label htmlFor="firstName">First Name</label>
+          <input
+          type="text"
+          name="firstName"
+          id="firstName"
+          value={formData.firstName}
+          onChange={handleChange}
+          className={errors.firstName ? styles.error : ''}
+          />
+          {errors.firstName && <div className={styles.errorMessage}>{errors.firstName}</div>}
+          </div>
+
+<div className={styles.formGroup}>
+  <label htmlFor="lastName">Last Name</label>
+  <input
+    type="text"
+    name="lastName"
+    id="lastName"
+    value={formData.lastName}
+    onChange={handleChange}
+    className={errors.lastName ? styles.error : ''}
+  />
+  {errors.lastName && <div className={styles.errorMessage}>{errors.lastName}</div>}
+</div>
+
 
             <div className={styles.formGroup}>
               <label htmlFor="email">Email</label>
