@@ -13,7 +13,8 @@ export default function Signup() {
     email: '',
     password: '',
     confirmPassword: '',
-    role: ''  // ⬅️ New field
+    //role: '' 
+    status: ''      // ⬅️ New field
   });
 
   const [errors, setErrors] = useState({});
@@ -40,7 +41,8 @@ export default function Signup() {
     if (!formData.password) newErrors.password = 'Password is required';
     else if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters';
     if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
-    if (!formData.role) newErrors.role = 'Please select a role';
+   // if (!formData.role) newErrors.role = 'Please select a role';
+    if (!formData.status) newErrors.status = 'Please select a status';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -135,22 +137,22 @@ export default function Signup() {
             </div>
 
             {/* ⬇️ New Dropdown Field */}
+            
             <div className={styles.formGroup}>
-              <label htmlFor="role">Select Role</label>
-              <select
-                id="role"
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                className={errors.role ? styles.error : ''}
-              >
-                <option value="">-- Select Role --</option>
-                <option value="admin">Admin</option>
-                <option value="undergrad">Undergraduate</option>
-                <option value="grad">Graduate</option>
-              </select>
-              {errors.role && <div className={styles.errorMessage}>{errors.role}</div>}
-            </div>
+             <label htmlFor="status">Select Status</label>
+            <select
+               id="status"
+              name="status"
+               value={formData.status}
+               onChange={handleChange}
+             className={errors.status ? styles.error : ''}
+           >
+           <option value="">-- Select Status --</option>
+           <option value="undergraduate">Undergraduate</option>
+             <option value="graduate">Graduate</option>
+           </select>
+          {errors.status && <div className={styles.errorMessage}>{errors.status}</div>}
+          </div>
 
             <button type="submit" className={styles.signupButton}>Sign Up</button>
           </form>
