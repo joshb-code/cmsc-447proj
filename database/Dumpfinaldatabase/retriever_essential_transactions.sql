@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.41, for macos15 (arm64)
+-- MySQL dump 10.13  Distrib 8.0.41, for Win64 (x86_64)
 --
--- Host: localhost    Database: inventory
+-- Host: localhost    Database: retriever_essential
 -- ------------------------------------------------------
--- Server version	9.2.0
+-- Server version	8.0.41
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -16,33 +16,34 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `users`
+-- Table structure for table `transactions`
 --
 
-DROP TABLE IF EXISTS `users`;
+DROP TABLE IF EXISTS `transactions`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `users` (
-  `id` varchar(20) NOT NULL,
-  `email` varchar(100) NOT NULL,
-  `phone` varchar(20) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `role` enum('admin','customer') NOT NULL,
-  `status` enum('active','inactive') DEFAULT 'active',
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `email` (`email`),
-  UNIQUE KEY `phone` (`phone`)
+CREATE TABLE `transactions` (
+  `transaction_id` int NOT NULL AUTO_INCREMENT,
+  `user_id` varchar(10) NOT NULL,
+  `product_id` varchar(20) NOT NULL,
+  `quantity_taken` float NOT NULL,
+  `user_role` enum('admin','graduate','undergraduate') NOT NULL,
+  `taken_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`transaction_id`),
+  KEY `user_id` (`user_id`),
+  KEY `transactions_ibfk_2` (`product_id`),
+  CONSTRAINT `transactions_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
+  CONSTRAINT `transactions_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `items` (`product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `users`
+-- Dumping data for table `transactions`
 --
 
-LOCK TABLES `users` WRITE;
-/*!40000 ALTER TABLE `users` DISABLE KEYS */;
-/*!40000 ALTER TABLE `users` ENABLE KEYS */;
+LOCK TABLES `transactions` WRITE;
+/*!40000 ALTER TABLE `transactions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `transactions` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -54,4 +55,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-03-21 12:24:56
+-- Dump completed on 2025-04-14 16:54:24
