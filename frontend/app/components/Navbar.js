@@ -10,10 +10,16 @@ import styles from '../../styles/Navbar.module.css';
 export default function Navbar() {
   // Initialize router and authentication context
   const router = useRouter();
-  const { isAuthenticated, signOut } = useAuth();
+  const { isAuthenticated, user, signOut } = useAuth();
   
   // State for dropdown menu visibility
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  // Check if user is admin
+  const isAdmin = user?.role === 'admin';
+  
+  // Check if user is a student
+  const isStudent = isAuthenticated && user?.role === 'student';
 
   // Handle sign out action
   const handleSignOut = () => {
@@ -45,12 +51,32 @@ export default function Navbar() {
           <Link href="/inventory" className={styles.dropdownItem} onClick={closeDropdown}>
             Home
           </Link>
-          <Link href="/add-item" className={styles.dropdownItem} onClick={closeDropdown}>
-            Add Items
+          
+          {/* Only show Browse Items for unauthenticated users or admin users */}
+          {(!isAuthenticated || isAdmin) && (
+            <Link href="/available-items" className={styles.dropdownItem} onClick={closeDropdown}>
+              Browse Items
+            </Link>
+          )}
+          
+          {isAdmin && (
+            <>
+              <Link href="/admin/add-item" className={styles.dropdownItem} onClick={closeDropdown}>
+                Add Items
+              </Link>
+              <Link href="/admin/vendors" className={styles.dropdownItem} onClick={closeDropdown}>
+                Manage Vendors
+              </Link>
+              <Link href="/admin/dashboard" className={styles.dropdownItem} onClick={closeDropdown}>
+                Admin Dashboard
+              </Link>
+            </>
+          )}
+          
+          <Link href="/profile" className={styles.dropdownItem} onClick={closeDropdown}>
+            My Profile
           </Link>
-          <Link href="/vendors" className={styles.dropdownItem} onClick={closeDropdown}>
-            Vendors
-          </Link>
+          
           <button onClick={handleSignOut} className={`${styles.dropdownItem} ${styles.signOutBtn}`}>
             Sign Out
           </button>
