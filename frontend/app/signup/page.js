@@ -23,8 +23,7 @@ export default function Signup() {
     email: '',
     password: '',
     confirmPassword: '',
-    phone: '',    // Optional phone number field
-    status: ''    // User status (undergraduate/graduate)
+    role: ''  // ⬅️ New field
   });
 
   // State for validation errors
@@ -59,11 +58,7 @@ export default function Signup() {
    */
   const validateForm = () => {
     const newErrors = {};
-    // Check required fields
-    if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
-    if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
-    
-    // Email validation
+    if (!formData.username.trim()) newErrors.username = 'Username is required';
     if (!formData.email.trim()) newErrors.email = 'Email is required';
     else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid';
     
@@ -73,40 +68,13 @@ export default function Signup() {
     
     // Password confirmation validation
     if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
-    
-    // Phone validation - optional field but validate format if provided
-    if (formData.phone && !/^\d{10}$/.test(formData.phone.replace(/[^0-9]/g, ''))) {
-      newErrors.phone = 'Please enter a valid 10-digit phone number';
-    }
-    
-    // Status validation
-    if (!formData.status) newErrors.status = 'Please select a status';
-    
-    // Update error state
+    if (!formData.role) newErrors.role = 'Please select a role';  // ⬅️ Role validation
     setErrors(newErrors);
     // Return true if no errors
     return Object.keys(newErrors).length === 0;
   };
-  
-  /**
-   * Generate unique user ID based on user's name
-   * Creates an ID with initials and random numbers
-   * @param {string} firstName - User's first name
-   * @param {string} lastName - User's last name
-   * @returns {string} - Generated user ID
-   */
-  const generateUserId = (firstName, lastName) => {
-    const firstInitial = firstName.charAt(0).toUpperCase();
-    const lastInitial = lastName.charAt(0).toUpperCase();
-    const randomNumbers = Math.floor(10000 + Math.random() * 90000);
-    return `${firstInitial}${lastInitial}${randomNumbers}`;
-  };
 
-  /**
-   * Handle form submission for user registration
-   * Validates form, prepares user data, and sends to API
-   */
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
       try {
@@ -196,32 +164,17 @@ export default function Signup() {
           
           {/* User registration form */}
           <form onSubmit={handleSubmit} className={styles.signupForm}>
-            {/* First name field */}
             <div className={styles.formGroup}>
-              <label htmlFor="firstName">First Name</label>
+              <label htmlFor="username">Username</label>
               <input
                 type="text"
-                name="firstName"
-                id="firstName"
-                value={formData.firstName}
+                name="username"
+                id="username"
+                value={formData.username}
                 onChange={handleChange}
-                className={errors.firstName ? styles.error : ''}
+                className={errors.username ? styles.error : ''}
               />
-              {errors.firstName && <div className={styles.errorMessage}>{errors.firstName}</div>}
-            </div>
-
-            {/* Last name field */}
-            <div className={styles.formGroup}>
-              <label htmlFor="lastName">Last Name</label>
-              <input
-                type="text"
-                name="lastName"
-                id="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
-                className={errors.lastName ? styles.error : ''}
-              />
-              {errors.lastName && <div className={styles.errorMessage}>{errors.lastName}</div>}
+              {errors.username && <div className={styles.errorMessage}>{errors.username}</div>}
             </div>
 
             {/* Email field */}
@@ -266,19 +219,22 @@ export default function Signup() {
               {errors.confirmPassword && <div className={styles.errorMessage}>{errors.confirmPassword}</div>}
             </div>
 
-            {/* Phone number field (optional) */}
+            {/* ⬇️ New Dropdown Field */}
             <div className={styles.formGroup}>
-              <label htmlFor="phone">Phone Number</label>
-              <input
-                type="tel"
-                name="phone"
-                id="phone"
-                placeholder=" "
-                value={formData.phone}
+              <label htmlFor="role">Select Role</label>
+              <select
+                id="role"
+                name="role"
+                value={formData.role}
                 onChange={handleChange}
-                className={errors.phone ? styles.error : ''}
-              />
-              {errors.phone && <div className={styles.errorMessage}>{errors.phone}</div>}
+                className={errors.role ? styles.error : ''}
+              >
+                <option value="">-- Select Role --</option>
+                <option value="admin">Admin</option>
+                <option value="undergrad">Undergraduate</option>
+                <option value="grad">Graduate</option>
+              </select>
+              {errors.role && <div className={styles.errorMessage}>{errors.role}</div>}
             </div>
 
             {/* Status selection dropdown */}
