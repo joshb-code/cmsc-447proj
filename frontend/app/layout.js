@@ -1,3 +1,5 @@
+'use client';
+
 // Root layout component that wraps the entire application
 // This is where we set up global providers and metadata
 
@@ -8,13 +10,8 @@ import "../styles/Home.module.css";
 
 // Import context providers
 import { ItemsProvider } from './context/ItemsContext';
+import { VendorsProvider } from './context/VendorsContext';
 import { AuthProvider } from './context/AuthContext';
-
-// Metadata for the application
-export const metadata = {
-  title: "Retriever's Essentials",
-  description: "UMBC's student pantry inventory app",
-};
 
 // Root layout component that wraps all pages
 export default function RootLayout({ children }) {
@@ -25,10 +22,12 @@ export default function RootLayout({ children }) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </head>
       <body>
-        {/* Wrap the entire app with authentication and items context providers */}
+        {/* Wrap the entire app with authentication and context providers */}
         <AuthProvider>
           <ItemsProvider>
-            {children}
+            <VendorsProvider>
+              {children}
+            </VendorsProvider>
           </ItemsProvider>
         </AuthProvider>
       </body>
