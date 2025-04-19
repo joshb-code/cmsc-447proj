@@ -54,10 +54,7 @@
 }
 
 /* Add styling for the required asterisk */
-.required-asterisk {
-  color: #ff4444;
-  margin-left: 2px;
-}
+
 
 .form-group input,
 .form-group textarea,

@@ -1,148 +1,90 @@
 const express = require('express');
 const cors = require('cors');
-const mysql = require('mysql2');
 require('dotenv').config();
 
-// Initialize Express app
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware setup
-app.use(cors()); // Enable CORS for all routes
-app.use(express.json()); // Parse JSON request bodies
+// Configure CORS to accept requests from frontend during development
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Role'],
+  credentials: true,
+  optionsSuccessStatus: 200
+}));
 
-// MySQL database connection configuration
-const db = mysql.createConnection({
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '1095',
-  database: process.env.DB_NAME || 'inventory',
-});
-
-// Connect to MySQL database
-db.connect((err) => {
-  if (err) {
-    console.error('❌ MySQL connection error:', err);
-  } else {
-    console.log('✅ Connected to MySQL database');
+// Add request logging middleware
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  if (req.method === 'OPTIONS') {
+    console.log('Received OPTIONS request - responding with CORS headers');
   }
+  next();
 });
 
-// Root route - API health check
+// Add response header logging middleware
+app.use((req, res, next) => {
+  const originalSend = res.send;
+  res.send = function(body) {
+    console.log(`Response status for ${req.method} ${req.url}: ${res.statusCode}`);
+    return originalSend.call(this, body);
+  };
+  next();
+});
+
+app.use(express.json());
+
+// API routes
+console.log('Registering API routes...');
+
+// Define user routes directly for testing
+const userController = require('./controllers/usersController');
+app.post('/api/users/login', userController.login);
+app.post('/api/users/signup', userController.create);
+
+// Load other routes from route files
+app.use('/api/items', require('./routes/items'));
+app.use('/api/users', require('./routes/users'));
+app.use('/api/vendors', require('./routes/vendors'));
+app.use('/api/transactions', require('./routes/transactions'));
+
+console.log('Routes registered successfully');
+
+// Health check endpoint
 app.get('/', (req, res) => {
-  res.send('🚀 Inventory API is running');
+  res.send('🎉 API is up and running');
 });
 
-// GET all inventory items
-app.get('/api/inventory', (req, res) => {
-  const query = 'SELECT * FROM inventory_items';
-  db.query(query, (err, results) => {
+// Add a debug endpoint to test API connectivity
+app.get('/test', (req, res) => {
+  console.log('Test endpoint accessed');
+  res.json({ message: 'API is working properly' });
+});
+
+// Add a specific items test endpoint
+app.get('/test-items', (req, res) => {
+  console.log('Testing items endpoint');
+  const db = require('./db');
+  db.query('SELECT * FROM items LIMIT 5', (err, rows) => {
     if (err) {
-      console.error('❌ Error fetching items:', err);
-      return res.status(500).json({ error: 'Failed to fetch items' });
+      console.error('Database error:', err);
+      return res.status(500).json({ error: 'Database error', details: err.message });
     }
-    res.json(results);
+    console.log('Items returned:', rows.length);
+    res.json(rows);
   });
 });
 
-// GET a single item by product_id
-app.get('/api/inventory/:id', (req, res) => {
-  const id = req.params.id;
-  const query = 'SELECT * FROM inventory_items WHERE product_id = ?';
-  db.query(query, [id], (err, results) => {
-    if (err) {
-      console.error('❌ Error fetching item:', err);
-      return res.status(500).json({ error: 'Failed to fetch item' });
-    }
-    if (results.length === 0) {
-      return res.status(404).json({ error: 'Item not found' });
-    }
-    res.json(results[0]);
-  });
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Server error:', err);
+  res.status(500).json({ error: 'Server error', message: err.message });
 });
 
-// PUT (update) an item by product_id
-app.put('/api/inventory/:id', (req, res) => {
-  const id = req.params.id;
-  const {
-    product_name,
-    weight_amount,
-    price_per_unit,
-    order_quantity,
-    description,
-    type,
-  } = req.body;
-
-  // SQL query to update item
-  const query = `
-    UPDATE inventory_items
-    SET product_name = ?, weight_amount = ?, price_per_unit = ?, order_quantity = ?, description = ?, type = ?
-    WHERE product_id = ?
-  `;
-
-  db.query(
-    query,
-    [product_name, weight_amount, price_per_unit, order_quantity, description, type, id],
-    (err, result) => {
-      if (err) {
-        console.error('❌ Error updating item:', err);
-        return res.status(500).json({ error: 'Failed to update item' });
-      }
-      res.json({ message: '✅ Item updated successfully' });
-    }
-  );
-});
-
-// DELETE item by product_id
-app.delete('/api/inventory/:id', (req, res) => {
-  const id = req.params.id;
-  const query = 'DELETE FROM inventory_items WHERE product_id = ?';
-
-  db.query(query, [id], (err, result) => {
-    if (err) {
-      console.error('❌ Error deleting item:', err);
-      return res.status(500).json({ error: 'Failed to delete item' });
-    }
-    res.json({ message: '✅ Item deleted successfully' });
-  });
-});
-
-// POST (add) new item
-app.post('/api/inventory', (req, res) => {
-  // Extract item data from request body
-  const {
-    product_name,
-    weight_amount,
-    price_per_unit,
-    order_quantity,
-    description,
-    type,
-    vendor_id
-  } = req.body;
-
-  // SQL query to insert new item
-  const query = `
-    INSERT INTO inventory_items 
-    (product_name, weight_amount, price_per_unit, order_quantity, description, type, vendor_id)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-  `;
-
-  // Execute query with item data
-  db.query(
-    query,
-    [product_name, weight_amount, price_per_unit, order_quantity, description, type, vendor_id],
-    (err, result) => {
-      if (err) {
-        console.error('❌ Error adding item:', err);
-        return res.status(500).json({ error: 'Failed to add item' });
-      }
-      // Return success message with new item's ID
-      res.status(201).json({ message: '✅ Item added', product_id: result.insertId });
-    }
-  );
-});
-
-// Start the server
 app.listen(PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}/api/inventory`);
+  console.log(`🚀 Server listening at http://localhost:${PORT}`);
+  console.log(`Test API at: http://localhost:${PORT}/test`);
+  console.log(`Items API at: http://localhost:${PORT}/api/items`);
+  console.log(`Users API at: http://localhost:${PORT}/api/users/login and http://localhost:${PORT}/api/users/signup`);
 });
