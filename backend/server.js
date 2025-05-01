@@ -3,7 +3,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8000;
 
 // Configure CORS to accept requests from frontend during development
 app.use(cors({
@@ -83,7 +83,7 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server listening at http://localhost:${PORT}`);
+  console.log(` Server listening at http://localhost:${PORT}`);
   console.log(`Test API at: http://localhost:${PORT}/test`);
   console.log(`Items API at: http://localhost:${PORT}/api/items`);
   console.log(`Users API at: http://localhost:${PORT}/api/users/login and http://localhost:${PORT}/api/users/signup`);

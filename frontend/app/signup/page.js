@@ -58,7 +58,11 @@ export default function Signup() {
    */
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.username.trim()) newErrors.username = 'Username is required';
+    // Check required fields
+    if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
+    if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
+    
+    // Email validation
     if (!formData.email.trim()) newErrors.email = 'Email is required';
     else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid';
     
@@ -68,13 +72,40 @@ export default function Signup() {
     
     // Password confirmation validation
     if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
-    if (!formData.role) newErrors.role = 'Please select a role';  // ⬅️ Role validation
+    
+    // Phone validation - optional field but validate format if provided
+    if (formData.phone && !/^\d{10}$/.test(formData.phone.replace(/[^0-9]/g, ''))) {
+      newErrors.phone = 'Please enter a valid 10-digit phone number';
+    }
+    
+    // Status validation
+    if (!formData.status) newErrors.status = 'Please select a status';
+    
+    // Update error state
     setErrors(newErrors);
     // Return true if no errors
     return Object.keys(newErrors).length === 0;
   };
+  
+  /**
+   * Generate unique user ID based on user's name
+   * Creates an ID with initials and random numbers
+   * @param {string} firstName - User's first name
+   * @param {string} lastName - User's last name
+   * @returns {string} - Generated user ID
+   */
+  const generateUserId = (firstName, lastName) => {
+    const firstInitial = firstName.charAt(0).toUpperCase();
+    const lastInitial = lastName.charAt(0).toUpperCase();
+    const randomNumbers = Math.floor(10000 + Math.random() * 90000);
+    return `${firstInitial}${lastInitial}${randomNumbers}`;
+  };
 
-  const handleSubmit = (e) => {
+  /**
+   * Handle form submission for user registration
+   * Validates form, prepares user data, and sends to API
+   */
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
       try {
@@ -94,7 +125,7 @@ export default function Signup() {
         console.log('Sending signup data to API:', userData);
         
         // Send data to the backend API
-        const response = await fetch('http://localhost:5000/api/users/signup', {
+        const response = await fetch('http://localhost:8000/api/users/signup', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -164,17 +195,32 @@ export default function Signup() {
           
           {/* User registration form */}
           <form onSubmit={handleSubmit} className={styles.signupForm}>
+            {/* First name field */}
             <div className={styles.formGroup}>
-              <label htmlFor="username">Username</label>
+              <label htmlFor="firstName">First Name</label>
               <input
                 type="text"
-                name="username"
-                id="username"
-                value={formData.username}
+                name="firstName"
+                id="firstName"
+                value={formData.firstName}
                 onChange={handleChange}
-                className={errors.username ? styles.error : ''}
+                className={errors.firstName ? styles.error : ''}
               />
-              {errors.username && <div className={styles.errorMessage}>{errors.username}</div>}
+              {errors.firstName && <div className={styles.errorMessage}>{errors.firstName}</div>}
+            </div>
+
+            {/* Last name field */}
+            <div className={styles.formGroup}>
+              <label htmlFor="lastName">Last Name</label>
+              <input
+                type="text"
+                name="lastName"
+                id="lastName"
+                value={formData.lastName}
+                onChange={handleChange}
+                className={errors.lastName ? styles.error : ''}
+              />
+              {errors.lastName && <div className={styles.errorMessage}>{errors.lastName}</div>}
             </div>
 
             {/* Email field */}
@@ -219,40 +265,37 @@ export default function Signup() {
               {errors.confirmPassword && <div className={styles.errorMessage}>{errors.confirmPassword}</div>}
             </div>
 
-            {/* ⬇️ New Dropdown Field */}
+            {/* Phone number field (optional) */}
             <div className={styles.formGroup}>
-              <label htmlFor="role">Select Role</label>
-              <select
-                id="role"
-                name="role"
-                value={formData.role}
+              <label htmlFor="phone">Phone Number</label>
+              <input
+                type="tel"
+                name="phone"
+                id="phone"
+                placeholder=" "
+                value={formData.phone}
                 onChange={handleChange}
-                className={errors.role ? styles.error : ''}
-              >
-                <option value="">-- Select Role --</option>
-                <option value="admin">Admin</option>
-                <option value="undergrad">Undergraduate</option>
-                <option value="grad">Graduate</option>
-              </select>
-              {errors.role && <div className={styles.errorMessage}>{errors.role}</div>}
+                className={errors.phone ? styles.error : ''}
+              />
+              {errors.phone && <div className={styles.errorMessage}>{errors.phone}</div>}
             </div>
 
             {/* Status selection dropdown */}
             <div className={styles.formGroup}>
-             <label htmlFor="status">Select Status</label>
-            <select
-               id="status"
-              name="status"
-               value={formData.status}
-               onChange={handleChange}
-             className={errors.status ? styles.error : ''}
-           >
-           <option value="">-- Select Status --</option>
-           <option value="Undergraduate">Undergraduate</option>
-           <option value="Graduate">Graduate</option>
-           </select>
-          {errors.status && <div className={styles.errorMessage}>{errors.status}</div>}
-          </div>
+              <label htmlFor="status">Select Status</label>
+              <select
+                id="status"
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                className={errors.status ? styles.error : ''}
+              >
+                <option value="">-- Select Status --</option>
+                <option value="Undergraduate">Undergraduate</option>
+                <option value="Graduate">Graduate</option>
+              </select>
+              {errors.status && <div className={styles.errorMessage}>{errors.status}</div>}
+            </div>
 
             {/* Submit button */}
             <button type="submit" className={styles.signupButton}>Sign Up</button>
