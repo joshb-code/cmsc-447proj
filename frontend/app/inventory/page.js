@@ -14,13 +14,14 @@ export default function Inventory() {
   const [cartItemsMap, setCartItemsMap] = useState({});
   const [cartVisible, setCartVisible] = useState(false);
   const [cartTriggered, setCartTriggered] = useState(false);
+  const [cartErrors, setCartErrors] = useState({});
   const panelRef = useRef();
 
-  const filteredItems = items.filter((item) => {
-    const matchesType = filteredType === 'All' || item.type === filteredType;
+  const filteredItems = items.filter(({ type, product_name, description }) => {
+    const matchesType = filteredType === 'All' || type === filteredType;
     const matchesSearch =
-      item.product_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.description.toLowerCase().includes(searchQuery.toLowerCase());
+      product_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      description.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesType && matchesSearch;
   });
 
@@ -32,18 +33,46 @@ export default function Inventory() {
 
   const handleAddToCart = (id) => {
     const qty = quantities[id];
+    const item = items.find((item) => item.product_id === id);
+    const maxQty = item?.max_signout_quantity ?? Infinity;
+    const currentQty = cartItemsMap[id] || 0;
+  
     if (qty > 0) {
+      if (currentQty + qty > maxQty) {
+        setCartErrors((prev) => ({
+          ...prev,
+          [id]: `Max allowed is ${maxQty}.`,
+        }));
+        
+        setTimeout(() => {
+          setCartErrors((prev) => {
+            const updated = { ...prev };
+            delete updated[id];
+            return updated;
+          });
+        }, 3000);
+    
+        return;
+      }
+    
+
       setCartItemsMap((prev) => ({
         ...prev,
-        [id]: (prev[id] || 0) + qty, // ✅ Add instead of replace
+        [id]: currentQty + qty,
       }));
       setCartTriggered(true);
-      setQuantities((prev) => ({ ...prev, [id]: '' })); // Clear input after adding
+      setQuantities((prev) => ({ ...prev, [id]: '' }));
+  
+      // Clear any previous error for this item
+      setCartErrors((prev) => {
+        const updated = { ...prev };
+        delete updated[id];
+        return updated;
+      });
     }
   };
   
   const toggleCart = () => setCartVisible((prev) => !prev);
-
   const clearCart = () => {
     setCartItemsMap({});
     setCartVisible(false);
@@ -52,43 +81,33 @@ export default function Inventory() {
 
   const handleCheckout = async () => {
     try {
-      // Process each item in the cart
       for (const [productId, quantity] of Object.entries(cartItemsMap)) {
-        const item = items.find(i => i.product_id === productId);
+        const item = items.find((i) => i.product_id === productId);
         if (!item) continue;
 
-        // Prepare update data based on item type
-        const updateData = {
-          product_id: productId
-        };
+        const updateData = { product_id: productId };
+        if (item.weight_amount !== null) updateData.weight = quantity;
+        else if (item.order_quantity !== null) updateData.quantity = quantity;
 
-        if (item.weight_amount !== null) {
-          updateData.weight = quantity;
-        } else if (item.order_quantity !== null) {
-          updateData.quantity = quantity;
-        }
-
-        // Send update request to backend
-        const response = await fetch(`http://localhost:5000/api/items/${productId}/update-quantity`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(updateData)
-        });
+        const response = await fetch(
+          `http://localhost:8000/api/items/${productId}/update-quantity`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updateData),
+          }
+        );
 
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.error || 'Failed to update item quantity');
         }
       }
-
-      // Clear cart and show success message
       clearCart();
       alert('Items checked out successfully!');
-    } catch (error) {
-      console.error('Checkout error:', error);
-      alert(error.message || 'Failed to checkout items. Please try again.');
+    } catch (err) {
+      console.error('Checkout error:', err);
+      alert(err.message || 'Failed to checkout items. Please try again.');
     }
   };
 
@@ -100,9 +119,7 @@ export default function Inventory() {
         setCartVisible(false);
       }
     };
-    if (cartVisible) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
+    if (cartVisible) document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [cartVisible]);
 
@@ -122,17 +139,13 @@ export default function Inventory() {
               <div className={styles.cartPanelPopup} ref={panelRef}>
                 <h4 className={styles.cartTitle}>Cart Summary</h4>
                 <div className={styles.cartButtons}>
-                  <button className={styles.clearButton} onClick={clearCart}>
-                    Clear
-                  </button>
-                  <button className={styles.checkoutButton} onClick={handleCheckout}>
-                    Checkout
-                  </button>
+                  <button className={styles.clearButton} onClick={clearCart}>Clear</button>
+                  <button className={styles.checkoutButton} onClick={handleCheckout}>Checkout</button>
                 </div>
                 <ol className={styles.cartList}>
-                  {cartItems.map((item) => (
-                    <li key={item.product_id}>
-                      <strong>{item.product_name}</strong> — {cartItemsMap[item.product_id]}
+                  {cartItems.map(({ product_id, product_name }) => (
+                    <li key={product_id}>
+                      <strong>{product_name}</strong> — {cartItemsMap[product_id]}
                     </li>
                   ))}
                 </ol>
@@ -159,15 +172,13 @@ export default function Inventory() {
               value={filteredType}
               onChange={(e) => setFilteredType(e.target.value)}
             >
-              <option value="All">All Types</option>
-              <option value="Grain">Grain</option>
-              <option value="Lentil">Lentil</option>
-              <option value="Legume">Legume</option>
-              <option value="Snack">Snack</option>
-              <option value="Instant">Instant</option>
-              <option value="Meal">Meal</option>
-              <option value="Other">Other</option>
-              <option value="Hygiene">Hygiene</option>
+              {['All', 'Grain', 'Lentil', 'Legume', 'Snack', 'Instant', 'Meal', 'Other', 'Hygiene'].map(
+                (type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                )
+              )}
             </select>
           </div>
 
@@ -181,24 +192,28 @@ export default function Inventory() {
               {filteredItems.length === 0 ? (
                 <p className={styles.noItemsMessage}>No items found matching your criteria.</p>
               ) : (
-                filteredItems.map((item) => (
-                  <div key={item.product_id} className={styles.itemCard}>
-                    <div className={styles.itemHeader}>
-                      <span className={styles.itemCategory}>{item.type}</span>
-                    </div>
-                    <h3>{item.product_name}</h3>
-                    <p className={styles.itemDescription}>{item.description}</p>
-                    <div className={styles.itemFooter}>
-                      <div className={styles.itemMeta}>
-                        <span className={styles.dietaryInfo}>
-                          Price: ${item.price_per_unit}
-                        </span>
+                filteredItems.map((item) => {
+                  const step = item.weight_amount !== null && item.order_quantity === null ? 0.1 : 1;
+                  return (
+                    <div key={item.product_id} className={styles.itemCard}>
+                      <div className={styles.itemHeader}>
+                        <span className={styles.itemCategory}>{item.type}</span>
+                      </div>
+                      <h3>{item.product_name}</h3>
+                      <p className={styles.itemDescription}>{item.description}</p>
+                      <div className={styles.itemFooter}>
+                        <div className={styles.priceAndMax}>
+                          <span className={styles.dietaryInfo}>Price: ${Number(item.price_per_unit).toFixed(2)}</span>
+                          <span className={styles.maxQuantityBadge}>
+                            Max Allowed: {item.max_signout_quantity ?? 'N/A'}
+                          </span>
+                        </div>
                         <div className={styles.quantityControl}>
                           <input
                             type="number"
                             min="0"
-                            step={item.weight_amount !== null && item.order_quantity === null ? 0.1 : 1}
-                            placeholder="Enter amount"
+                            step={item.weight_amount != null && item.order_quantity === null ? 0.1 : 1}
+                            placeholder="Qty"
                             value={quantities[item.product_id] || ''}
                             onChange={(e) =>
                               handleQuantityChange(
@@ -215,10 +230,16 @@ export default function Inventory() {
                             <ShoppingCart size={20} />
                           </button>
                         </div>
+
+                        {cartErrors[item.product_id] && (
+                          <div className={styles.errorMessage}>
+                            {cartErrors[item.product_id]}
+                          </div>
+                        )}
                       </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           )}

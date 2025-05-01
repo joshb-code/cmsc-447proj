@@ -46,9 +46,12 @@ export default function AvailableItems() {
                 <h3>{item.product_name}</h3>
                 <p className={styles.itemDescription}>{item.description}</p>
                 <div className={styles.itemFooter}>
-                  <span className={styles.dietaryInfo}>
-                    Price: ${item.price_per_unit}
-                  </span>
+                  <div className={styles.priceRow}>
+                    <span> Price: ${item.price_per_unit}</span>
+                    <span className={styles.maxQuantityBadge}>
+                      Max Allowed: {item.max_signout_quantity ?? 'N/A'}
+                    </span>
+                  </div>
                 </div>
               </div>
             ))}

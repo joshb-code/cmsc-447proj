@@ -9,7 +9,7 @@ export const ItemsProvider = ({ children }) => {
   const [error, setError] = useState('');
 
   // Hard-code the API URL for testing
-  const API_URL = 'http://localhost:5000';
+  const API_URL = 'http://localhost:8000';
   
   useEffect(() => {
     const fetchItems = async () => {

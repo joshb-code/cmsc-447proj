@@ -45,7 +45,7 @@ export default function AdminAddItem() {
   useEffect(() => {
     const fetchVendors = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/vendors');
+        const response = await fetch('http://localhost:8000/api/vendors');
         if (!response.ok) {
           throw new Error('Failed to fetch vendors');
         }
@@ -135,7 +135,7 @@ export default function AdminAddItem() {
         console.log('Processed item data:', itemData);
         
         // Send POST request to add new item using the correct API endpoint
-        const response = await fetch('http://localhost:5000/api/items', {
+        const response = await fetch('http://localhost:8000/api/items', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

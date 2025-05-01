@@ -1,6 +1,23 @@
 .hideNavbar .navbar {
     display: none;
   }
+  .maxQuantityBadge {
+    background-color: #ffe5e5;
+    color: #b00;
+    font-weight: bold;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    display: inline-block;
+    margin-top: 8px;
+  }
+  
+  .priceRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
   
   .hideNavbar body {
     margin-top: 0;
