@@ -20,6 +20,42 @@ export default function AdminAddItem() {
       router.push('/admin/add-item');
     }
   }, [isAuthenticated, user, router]);
+
+  // Handle URL parameters and pre-fill form
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const itemId = searchParams.get('id');
+    
+    if (itemId && isAuthenticated && user?.role === 'admin') {
+      setIsUpdateMode(true); // Set update mode when ID is in URL
+      const fetchItemData = async () => {
+        try {
+          const response = await fetch(`http://localhost:8000/api/items/${itemId}`);
+          if (response.ok) {
+            const existingItem = await response.json();
+            setFormData({
+              product_id: itemId,
+              product_name: existingItem.product_name || '',
+              description: existingItem.description || '',
+              type: existingItem.type || '',
+              vendor_id: existingItem.vendor_id?.toString() || '',
+              price_per_unit: existingItem.price_per_unit?.toString() || '',
+              order_quantity: '',
+              weight_amount: ''
+            });
+            setSuccess('Item data loaded for updating. Modify values as needed.');
+          } else {
+            setError('Failed to load item data. Please try again.');
+          }
+        } catch (err) {
+          console.error('Error fetching item data:', err);
+          setError('Error loading item data: ' + err.message);
+        }
+      };
+      
+      fetchItemData();
+    }
+  }, [isAuthenticated, user]);
   
   // State for form data with initial empty values
   const [formData, setFormData] = useState({
@@ -40,6 +76,7 @@ export default function AdminAddItem() {
   // State for error and success messages
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [isUpdateMode, setIsUpdateMode] = useState(false);
   
   // Fetch vendors on component mount
   useEffect(() => {
@@ -65,12 +102,73 @@ export default function AdminAddItem() {
   }, [isAuthenticated, user]);
 
   // Handle input changes and update form state
-  const handleChange = (e) => {
+  const handleChange = async (e) => {
     const { name, value } = e.target;
+    console.log('Input changed:', name, value);
+    
     setFormData(prevState => ({
       ...prevState,
       [name]: value
     }));
+
+    // If product_id is being changed, check if it exists
+    if (name === 'product_id' && value.trim()) {
+      try {
+        console.log('Checking product ID:', value.trim());
+        const response = await fetch(`http://localhost:8000/api/items/${value.trim()}`);
+        console.log('API Response:', response.status);
+        
+        let existingItem = null;
+        try {
+          existingItem = await response.json();
+        } catch (err) {
+          // JSON parse error means no valid item data
+          existingItem = null;
+        }
+        
+        if (response.ok && existingItem && Object.keys(existingItem).length > 0) {
+          console.log('Found existing item:', existingItem);
+          
+          // Auto-fill the form with existing item data
+          const updatedFormData = {
+            ...formData,
+            product_id: value.trim(), // Keep the product_id
+            product_name: existingItem.product_name || '',
+            description: existingItem.description || '',
+            type: existingItem.type || '',
+            vendor_id: existingItem.vendor_id?.toString() || '',
+            price_per_unit: existingItem.price_per_unit?.toString() || '',
+            order_quantity: '', // Reset quantity to empty
+            weight_amount: '' // Reset weight to empty
+          };
+          
+          console.log('Updating form with:', updatedFormData);
+          setFormData(updatedFormData);
+          setSuccess('Existing item found. Fields have been auto-filled. Update values as needed.');
+          // Clear message after 2 seconds
+          setTimeout(() => {
+            setSuccess('');
+          }, 2000);
+        } else {
+          console.log('No existing item found');
+          setSuccess('Entering new item in the inventory. Please fill in the details.');
+          setError('');
+          // Clear message after 2 seconds
+          setTimeout(() => {
+            setSuccess('');
+          }, 2000);
+        }
+      } catch (err) {
+        // Network or other errors
+        console.error('Error checking item:', err);
+        setSuccess('Entering new item in the inventory. Please fill in the details.');
+        setError('');
+        // Clear message after 2 seconds
+        setTimeout(() => {
+          setSuccess('');
+        }, 2000);
+      }
+    }
   };
 
   // Validate form inputs before submission
@@ -115,10 +213,9 @@ export default function AdminAddItem() {
     e.preventDefault();
     const validationErrors = validateForm();
     
-    // Proceed only if there are no validation errors
     if (Object.keys(validationErrors).length === 0) {
       try {
-        console.log('Submitting item data:', formData);
+        console.log('Original form data:', formData);
         
         // Create item data object with correct field names
         const itemData = {
@@ -132,36 +229,89 @@ export default function AdminAddItem() {
           type: formData.type.trim()
         };
         
-        console.log('Processed item data:', itemData);
+        console.log('Sending item data to server:', itemData);
+
+        // Check if item exists to determine if we should update or create
+        const checkResponse = await fetch(`http://localhost:8000/api/items/${itemData.product_id}`);
+        let itemExists = false;
+        let existingItemData = null;
         
-        // Send POST request to add new item using the correct API endpoint
-        const response = await fetch('http://localhost:8000/api/items', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(itemData),
-          mode: 'cors',
-          credentials: 'omit'
-        });
+        try {
+          existingItemData = await checkResponse.json();
+          // Consider it an update only if we get valid data back
+          itemExists = checkResponse.ok && existingItemData && Object.keys(existingItemData).length > 0;
+        } catch (err) {
+          itemExists = false;
+        }
+
+        let finalItemData = { ...itemData };
+
+        // Only add quantities if we're in update mode (coming from Update button)
+        if (itemExists && isUpdateMode) {
+          // Get current item data
+          const currentItem = existingItemData;
+          console.log('Current item data:', currentItem);
+
+          // Add new quantities to existing values
+          finalItemData = {
+            ...itemData,
+            order_quantity: itemData.order_quantity 
+              ? (currentItem.order_quantity || 0) + parseInt(itemData.order_quantity)
+              : currentItem.order_quantity,
+            weight_amount: itemData.weight_amount
+              ? (currentItem.weight_amount || 0) + parseFloat(itemData.weight_amount)
+              : currentItem.weight_amount
+          };
+
+          console.log('Updated quantities:', {
+            oldQuantity: currentItem.order_quantity,
+            newQuantity: finalItemData.order_quantity,
+            oldWeight: currentItem.weight_amount,
+            newWeight: finalItemData.weight_amount
+          });
+        }
         
-        console.log('Response status:', response.status);
+        // Send request to add/update item
+        const response = await fetch(
+          itemExists 
+            ? `http://localhost:8000/api/items/${itemData.product_id}`
+            : 'http://localhost:8000/api/items',
+          {
+            method: itemExists ? 'PUT' : 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(finalItemData),
+            mode: 'cors',
+            credentials: 'omit'
+          }
+        );
+        
+        console.log('Server response status:', response.status);
+        let responseData;
+        try {
+          responseData = await response.json();
+          console.log('Server response data:', responseData);
+        } catch (e) {
+          console.error('Error parsing response:', e);
+          responseData = { error: 'Invalid server response' };
+        }
 
         // Check if request was successful
         if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || errorData.details || 'Failed to add item');
+          throw new Error(
+            responseData.error || 
+            responseData.details || 
+            responseData.sqlMessage || 
+            'Failed to add/update item'
+          );
         }
 
-        // Log success and get response data
-        const data = await response.json();
-        console.log('Item added successfully:', data);
-
         // Show success message
-        setSuccess('Item added successfully!');
+        setSuccess(itemExists ? 'Item updated successfully!' : 'Item added successfully!');
         setError('');
 
-        // Reset form to initial state
+        // Reset form and update mode
         setFormData({
           product_id: '',
           product_name: '',
@@ -172,19 +322,37 @@ export default function AdminAddItem() {
           price_per_unit: '',
           weight_amount: ''
         });
+        setIsUpdateMode(false); // Reset update mode after successful submission
 
         // Clear success message after 3 seconds
         setTimeout(() => {
           setSuccess('');
         }, 3000);
       } catch (err) {
-        // Handle errors
-        setError('Failed to add item: ' + (err.message || 'Please try again.'));
-        console.error('Error adding item:', err);
+        // Handle errors with more detail
+        console.error('Error details:', {
+          message: err.message,
+          stack: err.stack,
+          response: err.response
+        });
+        
+        let errorMessage = 'Failed to add/update item: ';
+        if (err.message.includes('Duplicate entry')) {
+          errorMessage = 'This item ID already exists. Please use a different ID or update the existing item.';
+        } else if (err.message.includes('Database error')) {
+          errorMessage += 'There was a problem with the database. Please try again.';
+        } else {
+          errorMessage += err.message || 'Please try again.';
+        }
+        
+        setError(errorMessage);
       }
     } else {
       // Show validation errors
-      setError('Please correct the errors in the form:');
+      const errorList = Object.entries(validationErrors)
+        .map(([field, error]) => `${field}: ${error}`)
+        .join(', ');
+      setError(`Please correct the following errors: ${errorList}`);
       console.log('Validation errors:', validationErrors);
     }
   };
@@ -209,7 +377,7 @@ export default function AdminAddItem() {
       <Navbar />
       <div className={styles['add-item-container']}>
         <div className={styles['add-item-form-container']}>
-          <h2>Add New Item (Admin)</h2>
+          <h2>{isUpdateMode ? 'Update Item' : 'Add New Item'} (Admin)</h2>
           {/* Display success/error messages */}
           {success && <div className={styles['success-message']}>{success}</div>}
           {error && <div className={styles['error-message']}>{error}</div>}
@@ -228,6 +396,7 @@ export default function AdminAddItem() {
                 required
                 className={styles['form-input']}
                 placeholder="Enter item ID"
+                disabled={isUpdateMode}
               />
             </div>
 
@@ -344,8 +513,20 @@ export default function AdminAddItem() {
               />
             </div>
 
-            {/* Submit Button */}
-            <button type="submit" className={styles['submit-button']}>Add Item</button>
+            {/* Buttons Container */}
+            <div className={styles['button-container']}>
+              <button type="submit" className={styles['submit-button']}>
+                {isUpdateMode ? 'Update Item' : 'Add Item'}
+              </button>
+              
+              <button 
+                type="button" 
+                className={styles['cancel-button']}
+                onClick={() => router.push('/admin/browse-items')}
+              >
+                Cancel
+              </button>
+            </div>
           </form>
         </div>
       </div>

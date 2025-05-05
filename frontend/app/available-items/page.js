@@ -38,23 +38,25 @@ export default function AvailableItems() {
           <div className={styles.errorMessage}>No items found. Please check your database connection.</div>
         ) : (
           <div className={styles.itemsGrid}>
-            {items.map((item) => (
-              <div key={item.product_id} className={styles.itemCard}>
-                <div className={styles.itemHeader}>
-                  <span className={styles.itemCategory}>{item.type}</span>
-                </div>
-                <h3>{item.product_name}</h3>
-                <p className={styles.itemDescription}>{item.description}</p>
-                <div className={styles.itemFooter}>
-                  <div className={styles.priceRow}>
-                    <span> Price: ${item.price_per_unit}</span>
-                    <span className={styles.maxQuantityBadge}>
-                      Max Allowed: {item.max_signout_quantity ?? 'N/A'}
+            {items
+              .filter(item => !(
+                (item.order_quantity === null || item.order_quantity === 0) && 
+                (item.weight_amount === null || item.weight_amount === 0)
+              ))
+              .map((item) => (
+                <div key={item.product_id} className={styles.itemCard}>
+                  <div className={styles.itemHeader}>
+                    <span className={styles.itemCategory}>{item.type}</span>
+                  </div>
+                  <h3>{item.product_name}</h3>
+                  <p className={styles.itemDescription}>{item.description}</p>
+                  <div className={styles.itemFooter}>
+                    <span className={styles.dietaryInfo}>
+                      Price: ${item.price_per_unit}
                     </span>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
         )}
       </div>

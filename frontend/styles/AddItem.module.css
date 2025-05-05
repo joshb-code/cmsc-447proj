@@ -105,26 +105,39 @@
   text-align: center;
 }
 
-.submit-button {
-  background-color: #ffcc00;
-  color: #000;
-  padding: 1rem;
-  border: 1px solid #000;
-  border-radius: 5px;
-  font-size: 1rem;
-  font-weight: 600;
+.submit-button, .cancel-button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 15px 40px;
+  border: none;
+  border-radius: 4px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  margin-top: 1rem;
+  font-size: 16px;
+  margin-top: 20px;
+  width: calc(50% - 5px);
+  min-width: 200px;
 }
 
 .submit-button:hover {
-  background-color: #e6b800;
-  transform: translateY(-2px);
+  background-color: #45a049;
 }
 
-.submit-button:active {
-  transform: scale(0.98);
+.cancel-button {
+  background-color: #f44336;
+  margin-left: 10px;
+}
+
+.cancel-button:hover {
+  background-color: #da190b;
+}
+
+/* Add a container for the buttons */
+.button-container {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  width: 100%;
+  margin-top: 20px;
 }
 
 /* Input type number styling - using class selector instead of pure input selector */
