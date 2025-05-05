@@ -30,7 +30,7 @@ export function AuthProvider({ children }) {
   // State for tracking authentication status and user data
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
-
+  const [loading, setLoading] = useState(true);
   // Load authentication state from localStorage on component mount
   useEffect(() => {
     // Check if we're in the browser environment
@@ -57,6 +57,7 @@ export function AuthProvider({ children }) {
           setUser(null);
         }
       }
+      setLoading(false);
     }
   }, []);
 
@@ -98,7 +99,7 @@ export function AuthProvider({ children }) {
   // Provide the auth context to child components
   return (
     <AuthContext.Provider value={{ isAuthenticated, user, signIn, signOut }}>
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 }

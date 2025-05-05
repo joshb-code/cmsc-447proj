@@ -13,7 +13,7 @@ export const VendorsProvider = ({ children }) => {
   const [error, setError] = useState('');
 
   // Backend API URL for accessing vendor data
-  const API_URL = 'http://localhost:5000';
+  const API_URL = 'http://localhost:8000';
   
   // Fetch vendors data function
   const fetchVendors = async () => {
