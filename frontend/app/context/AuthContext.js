@@ -31,6 +31,7 @@ export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+
   // Load authentication state from localStorage on component mount
   useEffect(() => {
     // Check if we're in the browser environment
