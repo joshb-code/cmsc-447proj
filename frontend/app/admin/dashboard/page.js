@@ -151,7 +151,7 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* Low Stock Items Section */}
+          {/* Low Stock Items Section  dashboard*/}
           <div className={styles.dashboardCard}>
             <div className={styles.cardHeader}>
               <h2 className={styles.cardTitle}>Low Stock Items</h2>
