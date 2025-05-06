@@ -3,7 +3,10 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8000;
+
+// Parse JSON bodies
+app.use(express.json());
 
 // Configure CORS to accept requests from frontend during development
 app.use(cors({
@@ -11,8 +14,17 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Role'],
   credentials: true,
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
+  preflightContinue: false
 }));
+
+// Add debug logging middleware
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  console.log('Request headers:', req.headers);
+  console.log('Request body:', req.body);
+  next();
+});
 
 // Add request logging middleware
 app.use((req, res, next) => {
@@ -33,8 +45,6 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(express.json());
-
 // API routes
 console.log('Registering API routes...');
 
@@ -48,6 +58,7 @@ app.use('/api/items', require('./routes/items'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/vendors', require('./routes/vendors'));
 app.use('/api/transactions', require('./routes/transactions'));
+app.use('/api/types', require('./routes/types'));
 
 console.log('Routes registered successfully');
 
@@ -79,12 +90,18 @@ app.get('/test-items', (req, res) => {
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Server error:', err);
-  res.status(500).json({ error: 'Server error', message: err.message });
+  res.status(500).json({ 
+    error: 'Internal server error',
+    message: err.message
+  });
+});
+
+// 404 handler
+app.use((req, res) => {
+  console.log(`404 - Route not found: ${req.method} ${req.url}`);
+  res.status(404).json({ error: 'Route not found' });
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server listening at http://localhost:${PORT}`);
-  console.log(`Test API at: http://localhost:${PORT}/test`);
-  console.log(`Items API at: http://localhost:${PORT}/api/items`);
-  console.log(`Users API at: http://localhost:${PORT}/api/users/login and http://localhost:${PORT}/api/users/signup`);
+  console.log(`Server listening at http://localhost:${PORT}`);
 });

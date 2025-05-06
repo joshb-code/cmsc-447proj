@@ -68,7 +68,7 @@ export default function AddVendor() {
     setSubmitLoading(true);
     
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
       const url = `${API_URL}/api/vendors`;
       
       // Create data object for API request

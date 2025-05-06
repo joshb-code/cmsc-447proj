@@ -32,10 +32,20 @@ export default function Navbar() {
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
   const closeDropdown = () => setIsDropdownOpen(false);
 
+  const handleHomeClick = (e) => {
+    e.preventDefault();
+    if (isAdmin) {
+      router.push('/admin/dashboard');
+    } else {
+      router.push('/inventory');
+    }
+    closeDropdown();
+  };
+
   return (
     <nav className={styles.navbar}>
       {/* Application title/brand */}
-      <Link href="/" className={styles.navbarBrand}>
+      <Link href="#" onClick={handleHomeClick} className={styles.navbarBrand}>
         Retriever&apos;s Essentials
       </Link>
 
@@ -48,13 +58,17 @@ export default function Navbar() {
 
         {/* Dropdown menu items */}
         <div className={`${styles.dropdownMenu} ${isDropdownOpen ? styles.show : ''}`}>
-          <Link href="/inventory" className={styles.dropdownItem} onClick={closeDropdown}>
+          <Link href="#" onClick={handleHomeClick} className={styles.dropdownItem}>
             Home
           </Link>
           
           {/* Only show Browse Items for unauthenticated users or admin users */}
           {(!isAuthenticated || isAdmin) && (
-            <Link href="/available-items" className={styles.dropdownItem} onClick={closeDropdown}>
+            <Link 
+              href={isAdmin ? "/admin/browse-items" : "/available-items"} 
+              className={styles.dropdownItem} 
+              onClick={closeDropdown}
+            >
               Browse Items
             </Link>
           )}
@@ -67,8 +81,8 @@ export default function Navbar() {
               <Link href="/admin/vendors" className={styles.dropdownItem} onClick={closeDropdown}>
                 Manage Vendors
               </Link>
-              <Link href="/admin/dashboard" className={styles.dropdownItem} onClick={closeDropdown}>
-                Admin Dashboard
+              <Link href="/admin/limits" className={styles.dropdownItem} onClick={closeDropdown}>
+                Limits Management
               </Link>
             </>
           )}

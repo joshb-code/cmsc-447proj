@@ -12,6 +12,7 @@ import "../styles/Home.module.css";
 import { ItemsProvider } from './context/ItemsContext';
 import { VendorsProvider } from './context/VendorsContext';
 import { AuthProvider } from './context/AuthContext';
+import { TypesProvider } from './context/TypesContext';
 
 // Root layout component that wraps all pages
 export default function RootLayout({ children }) {
@@ -26,7 +27,9 @@ export default function RootLayout({ children }) {
         <AuthProvider>
           <ItemsProvider>
             <VendorsProvider>
-              {children}
+              <TypesProvider>
+                {children}
+              </TypesProvider>
             </VendorsProvider>
           </ItemsProvider>
         </AuthProvider>

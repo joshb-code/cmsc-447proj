@@ -1,26 +1,25 @@
 'use client';
 import { createContext, useContext, useEffect, useState } from 'react';
 
-const ItemsContext = createContext();
+const TypesContext = createContext();
 
-export const ItemsProvider = ({ children }) => {
-  const [items, setItems] = useState([]);
+export const TypesProvider = ({ children }) => {
+  const [types, setTypes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Hard-code the API URL for testing
+  // Backend API URL
   const API_URL = 'http://localhost:8000';
   
   useEffect(() => {
-    const fetchItems = async () => {
+    const fetchTypes = async () => {
       try {
-        console.log('Fetching items from:', `${API_URL}/api/items`);
+        console.log('Fetching types from:', `${API_URL}/api/types`);
         
-        // Add a timeout to prevent the fetch from hanging forever
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000);
         
-        const res = await fetch(`${API_URL}/api/items`, {
+        const res = await fetch(`${API_URL}/api/types`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -33,33 +32,37 @@ export const ItemsProvider = ({ children }) => {
         clearTimeout(timeoutId);
         
         if (!res.ok) {
-          console.error('Failed to fetch items, status:', res.status);
-          throw new Error(`Failed to fetch items: ${res.status}`);
+          console.error('Failed to fetch types, status:', res.status);
+          throw new Error(`Failed to fetch types: ${res.status}`);
         }
         
         const data = await res.json();
-        console.log('Items fetched successfully:', data.length);
-        setItems(data);
+        console.log('Types fetched successfully:', data);
+        
+        // Add 'All' as the first option
+        setTypes(['All', ...data]);
       } catch (err) {
-        console.error('Error fetching items:', err);
+        console.error('Error fetching types:', err);
         if (err.name === 'AbortError') {
           setError('Request timed out. Please check if the backend server is running.');
         } else {
-          setError(err.message || 'Failed to load items');
+          setError(err.message || 'Failed to load types');
         }
+        // Set default types if fetch fails
+        setTypes(['All', 'Grain', 'Lentil', 'Legume', 'Snack', 'Instant', 'Meal', 'Other', 'Hygiene']);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchItems();
+    fetchTypes();
   }, []);
 
   return (
-    <ItemsContext.Provider value={{ items, loading, error }}>
+    <TypesContext.Provider value={{ types, loading, error }}>
       {children}
-    </ItemsContext.Provider>
+    </TypesContext.Provider>
   );
 };
 
-export const useItems = () => useContext(ItemsContext);
+export const useTypes = () => useContext(TypesContext); 

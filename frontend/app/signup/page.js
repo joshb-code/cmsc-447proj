@@ -126,7 +126,7 @@ export default function Signup() {
         console.log('Sending signup data to API:', userData);
         
         // Send data to the backend API
-        const response = await fetch('http://localhost:5000/api/users/signup', {
+        const response = await fetch('http://localhost:8000/api/users/signup', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
