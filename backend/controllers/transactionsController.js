@@ -123,3 +123,40 @@ exports.getMostTaken = (req, res) => {
     res.json(rows);
   });
 };
+
+// Get unique student counts by status
+exports.getUniqueStudentCounts = (req, res) => {
+  const query = `
+    SELECT 
+      user_status,
+      COUNT(DISTINCT user_id) as count
+    FROM transactions
+    GROUP BY user_status
+  `;
+
+  db.query(query, (err, rows) => {
+    if (err) {
+      console.error('Error fetching student counts:', err);
+      return res.status(500).json({ error: 'Failed to fetch student counts' });
+    }
+
+    const counts = {
+      undergraduate_count: 0,
+      graduate_count: 0
+    };
+
+    if (Array.isArray(rows)) {
+      rows.forEach(row => {
+        if (row.user_status && row.count) {
+          if (row.user_status.toLowerCase() === 'undergraduate') {
+            counts.undergraduate_count = parseInt(row.count);
+          } else if (row.user_status.toLowerCase() === 'graduate') {
+            counts.graduate_count = parseInt(row.count);
+          }
+        }
+      });
+    }
+
+    res.json(counts);
+  });
+};

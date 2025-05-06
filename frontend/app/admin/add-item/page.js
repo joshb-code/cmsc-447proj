@@ -148,7 +148,7 @@ export default function AdminAddItem() {
           // Clear message after 2 seconds
           setTimeout(() => {
             setSuccess('');
-          }, 2000);
+          }, 1000);
         } else {
           console.log('No existing item found');
           setSuccess('Entering new item in the inventory. Please fill in the details.');
@@ -156,7 +156,7 @@ export default function AdminAddItem() {
           // Clear message after 2 seconds
           setTimeout(() => {
             setSuccess('');
-          }, 2000);
+          }, 1000);
         }
       } catch (err) {
         // Network or other errors

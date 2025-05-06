@@ -23,7 +23,7 @@ export default function Signup() {
     email: '',
     password: '',
     confirmPassword: '',
-    role: ''  // ⬅️ New field
+    role: ''  
   });
 
   // State for validation errors
