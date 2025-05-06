@@ -23,8 +23,7 @@ export default function Signup() {
     email: '',
     password: '',
     confirmPassword: '',
-    phone: '',    // Optional phone number field
-    status: ''    // User status (undergraduate/graduate)
+
   });
 
   // State for validation errors

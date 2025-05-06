@@ -3,16 +3,7 @@ const router = express.Router();
 const controller = require('../controllers/vendorsController');
 const authorizeAdmin = require('../middleware/authorizeAdmin');
 
-/**
- * Vendor API Routes
- * 
- * GET / - Retrieve all vendors (public access)
- * GET /:id - Retrieve a specific vendor by ID (public access)
- * GET /:id/items - Retrieve all items for a specific vendor (public access)
- * POST / - Create a new vendor (restricted to admin users)
- * PUT /:id - Update an existing vendor (restricted to admin users)
- * DELETE /:id - Remove a vendor (restricted to admin users)
- */
+
 
 // Public routes - No authorization required
 router.get('/', controller.getAll);

@@ -7,61 +7,51 @@ import styles from '@/styles/AdminDashboard.module.css';
 export default function AdminDashboard() {
   const [mostTakenItems, setMostTakenItems] = useState([]);
   const [lowStockItems, setLowStockItems] = useState([]);
+  const [studentCounts, setStudentCounts] = useState({
+    undergraduate: 0,
+    graduate: 0
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showAlertSettings, setShowAlertSettings] = useState(false);
-  const [alertSettings, setAlertSettings] = useState({
-    quantity: 5,
-    weight: 10
+  
+  // Initialize alert settings from localStorage or use defaults
+  const [alertSettings, setAlertSettings] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const savedSettings = localStorage.getItem('alertSettings');
+      return savedSettings ? JSON.parse(savedSettings) : { quantity: 5, weight: 10 };
+    }
+    return { quantity: 5, weight: 10 };
   });
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
+        // Fetch student counts
+        const studentCountsResponse = await fetch('http://localhost:8000/api/transactions/unique-students');
+        if (!studentCountsResponse.ok) {
+          throw new Error(`Failed to fetch student counts: ${studentCountsResponse.status}`);
+        }
+        const studentCountsData = await studentCountsResponse.json();
+        setStudentCounts({
+          undergraduate: studentCountsData.undergraduate_count,
+          graduate: studentCountsData.graduate_count
+        });
+
         // Fetch most taken items
-        console.log('Fetching most taken items...');
         const transactionsResponse = await fetch('http://localhost:8000/api/transactions/most-taken');
-        const transactionsText = await transactionsResponse.text();
-        console.log('Most taken items raw response:', transactionsText);
-        
         if (!transactionsResponse.ok) {
-          throw new Error(`Failed to fetch most taken items: ${transactionsResponse.status} ${transactionsResponse.statusText}`);
+          throw new Error(`Failed to fetch most taken items: ${transactionsResponse.status}`);
         }
-        
-        let transactionsData = [];
-        if (transactionsText.trim()) {
-          try {
-            transactionsData = JSON.parse(transactionsText);
-          } catch (parseError) {
-            console.error('Error parsing most taken items JSON:', parseError);
-            throw new Error('Invalid JSON response from most taken items endpoint');
-          }
-        }
-        
-        console.log('Most taken items parsed data:', transactionsData);
+        const transactionsData = await transactionsResponse.json();
         setMostTakenItems(Array.isArray(transactionsData) ? transactionsData : []);
 
-        // Fetch low stock items with alert settings
-        console.log('Fetching low stock items...');
+        // Fetch low stock items
         const itemsResponse = await fetch(`http://localhost:8000/api/items/low-stock?quantity=${alertSettings.quantity}&weight=${alertSettings.weight}`);
-        const itemsText = await itemsResponse.text();
-        console.log('Low stock items raw response:', itemsText);
-        
         if (!itemsResponse.ok) {
-          throw new Error(`Failed to fetch low stock items: ${itemsResponse.status} ${itemsResponse.statusText}`);
+          throw new Error(`Failed to fetch low stock items: ${itemsResponse.status}`);
         }
-        
-        let itemsData = [];
-        if (itemsText.trim()) {
-          try {
-            itemsData = JSON.parse(itemsText);
-          } catch (parseError) {
-            console.error('Error parsing low stock items JSON:', parseError);
-            throw new Error('Invalid JSON response from low stock items endpoint');
-          }
-        }
-        
-        console.log('Low stock items parsed data:', itemsData);
+        const itemsData = await itemsResponse.json();
         setLowStockItems(Array.isArray(itemsData) ? itemsData : []);
       } catch (err) {
         console.error('Error fetching dashboard data:', err);
@@ -74,26 +64,31 @@ export default function AdminDashboard() {
     fetchDashboardData();
   }, [alertSettings]);
 
-  const handleAlertSettingsSubmit = (e) => {
+  const handleAlertSettingsSubmit = async (e) => {
     e.preventDefault();
     
-    // Create the sed command to update the values
-    const sedCommand = `sed -i "s/quantity: [0-9]*,/quantity: ${alertSettings.quantity},/" frontend/app/admin/dashboard/page.js && sed -i "s/weight: [0-9]*[.]*[0-9]*/weight: ${alertSettings.weight}/" frontend/app/admin/dashboard/page.js`;
-    
-    // Execute the command
-    fetch('/api/run-command', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ command: sedCommand })
-    })
-    .then(() => {
+    try {
+      // Send request to update alert settings
+      const response = await fetch('http://localhost:8000/api/items/update-global-limits', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(alertSettings)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update alert thresholds');
+      }
+
+      // Save settings to localStorage
+      localStorage.setItem('alertSettings', JSON.stringify(alertSettings));
+      
+      // Close the modal
       setShowAlertSettings(false);
-      window.location.reload();
-    })
-    .catch(err => {
-      console.error('Failed to update values:', err);
+    } catch (err) {
       setError('Failed to update alert thresholds');
-    });
+    }
   };
 
   if (loading) {
@@ -231,7 +226,7 @@ export default function AdminDashboard() {
                       </div>
                       <div className={styles.itemStats}>
                         <span className={`${styles.statBadge} ${styles.warning}`}>
-                          {item.weight_amount !== null 
+                          {item.item_type === 'weight'
                             ? `${item.weight_amount} lbs left`
                             : `${item.order_quantity} units left`
                           }
@@ -243,6 +238,33 @@ export default function AdminDashboard() {
               ) : (
                 <p className={styles.noData}>No low stock items</p>
               )}
+            </div>
+          </div>
+
+          {/* Student Counts Section */}
+          <div className={styles.dashboardCard}>
+            <h2 className={styles.cardTitle}>Student Statistics</h2>
+            <div className={styles.listContainer}>
+              <div className={styles.studentStats}>
+                <div className={styles.statItem}>
+                  <h3>Undergraduate Students</h3>
+                  <span className={styles.statNumber}>
+                    {studentCounts.undergraduate}
+                  </span>
+                </div>
+                <div className={styles.statItem}>
+                  <h3>Graduate Students</h3>
+                  <span className={styles.statNumber}>
+                    {studentCounts.graduate}
+                  </span>
+                </div>
+                <div className={styles.statItem}>
+                  <h3>Total Students</h3>
+                  <span className={styles.statNumber}>
+                    {studentCounts.undergraduate + studentCounts.graduate}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

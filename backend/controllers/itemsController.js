@@ -193,60 +193,51 @@ exports.updateQuantity = (req, res) => {
 
 // Get low stock items
 exports.getLowStock = (req, res) => {
-  console.log('Fetching low stock items...');
-  
   // Get thresholds from query parameters, default to 5 for quantity and 10 for weight
   const quantityThreshold = parseInt(req.query.quantity) || 5;
   const weightThreshold = parseFloat(req.query.weight) || 10;
-  
-  console.log('Using thresholds:', { quantityThreshold, weightThreshold });
-  
+
   const query = `
     SELECT 
       product_id,
       product_name,
       type,
       weight_amount,
-      order_quantity
+      order_quantity,
+      CASE 
+        WHEN weight_amount IS NOT NULL AND weight_amount > 0 THEN 'weight'
+        WHEN order_quantity IS NOT NULL THEN 'quantity'
+        ELSE 'unknown'
+      END as item_type
     FROM items
     WHERE 
       (
         -- Weight-based items with low stock
+        weight_amount IS NOT NULL AND 
         weight_amount > 0 AND 
-        weight_amount <= ? AND 
-        (order_quantity = 0 OR order_quantity IS NULL)
+        weight_amount <= ?
       )
       OR
       (
         -- Quantity-based items with low stock
+        (weight_amount IS NULL OR weight_amount = 0) AND
+        order_quantity IS NOT NULL AND 
         order_quantity > 0 AND 
-        order_quantity <= ? AND 
-        (weight_amount = 0 OR weight_amount IS NULL)
+        order_quantity <= ?
       )
     ORDER BY 
       CASE 
-        WHEN weight_amount > 0 THEN weight_amount
-        ELSE order_quantity
-      END ASC
-    LIMIT 10
-  `;
+        WHEN weight_amount IS NOT NULL AND weight_amount > 0 THEN weight_amount / ?
+        ELSE order_quantity / ?
+      END ASC`;
 
-  db.query(query, [weightThreshold, quantityThreshold], (err, rows) => {
+  db.query(query, [weightThreshold, quantityThreshold, weightThreshold, quantityThreshold], (err, rows) => {
     if (err) {
       console.error('Error fetching low stock items:', err);
-      return res.status(500).json({ error: 'Failed to fetch low stock items', details: err.message });
+      return res.status(500).json({ error: 'Failed to fetch low stock items' });
     }
     
-    console.log('Low stock items query result:', rows);
-    
-    // Ensure we always return a valid array
-    const responseData = Array.isArray(rows) ? rows : [];
-    
-    // Log the response data
-    console.log('Sending response data:', responseData);
-    
-    // Send the response
-    res.json(responseData);
+    res.json(Array.isArray(rows) ? rows : []);
   });
 };
 
